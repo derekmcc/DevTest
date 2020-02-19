@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<body onload="loadXMLDoc()">
+		<p id="statusCode"></p>
+			<script>
+
+			/*
+				Function which is called on page load to read in the XML file
+			*/
+			function loadXMLDoc() {
+				
+				//Create a http request to exchange data with the server
+				var xmlhttp = new XMLHttpRequest();
+				//Variable to store status code
+				var sCode = "Status";
+				//Event handler to respond changes
+				xmlhttp.onreadystatechange = function() {
+					//if the XML is structured correctly and ok
+					if (this.readyState == 4 && this.status == 200) {
+						//Set the staus code to 0
+						sCode += " 0";
+						//Assign the value of the status code to the html tag 
+						document.getElementById("statusCode").innerHTML = sCode;
+						//Call the myXmlParser
+						myXmlParser(this, sCode);
+					}//end if
+				};
+				//Initialize http request using the GET command to get the xml data
+				xmlhttp.open("GET", "part3.xml", true);
+				//Send the request
+				xmlhttp.send();
+			}//end loadXMLDoc
+
+			/*
+				Function to parse the XML payload for the Declaration Command and SiteID
+			*/
+			function myXmlParser(xml, sCode) {
+				//Variables to store references and statusCodes
+				var xRef1, xRef2, i, xmlDoc, commandStatus, dubStatus;
+				xmlDoc = xml.responseXML;
+				dubStatus = "";
+				commandStatus = "";
+				
+				//Create a reference to the element with the tage name declaration
+				xRef1 = xmlDoc.getElementsByTagName("Declaration");
+				//Iterate through the elements with the tag Declaration
+				for (i = 0; i< xRef1.length; i++) {
+					//Store the Declaration Command value 
+					commandStatus =  xRef1[i].getAttribute("Command");
+				}//end for
+				
+				//Create a reference to the element with the tage name SiteID
+				xRef2 = xmlDoc.getElementsByTagName("SiteID");
+				//Iterate through the elements with the tag SiteID
+				for (i = 0; i< xRef2.length; i++) {
+					//Store the SiteID value 
+					dubStatus = xRef2[i].childNodes[0].nodeValue;
+				}//end for
+				
+				//Conditional statement to check if the declaration command is DEFAULT 
+				if (commandStatus == "DEFAULT"){
+					//Set the status code to -1 using the concatenate method
+					sCode += "<br>" + "Status -1";
+				}//end if
+				
+				//Conditional statement to check if the SiteID is DUB 
+				if (dubStatus == "DUB"){
+					sCode += "<br>" + "Status -2"; 
+				}//end if
+				
+				//Update the html P tag with the status codes
+				document.getElementById("statusCode").innerHTML = sCode;
+			}//end function
+			</script>
+	</body>
+</html>
+
